@@ -3,7 +3,10 @@ node_modules
 dist
 build
 coverage
+apps/api/prisma/seed.js
 .env
+.env.*
+!.env.production.example
 .env.local
 .env.*.local
 .DS_Store

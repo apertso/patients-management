@@ -1,0 +1,68 @@
+services:
+  caddy:
+    image: caddy:2.8
+    container_name: patients-management-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: patients-management-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - patients_management_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+    container_name: patients-management-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      FRONTEND_URL: ${APP_URL}
+      MOCK_LATENCY_ENABLED: ${MOCK_LATENCY_ENABLED}
+      MOCK_LATENCY_MIN_MS: ${MOCK_LATENCY_MIN_MS}
+      MOCK_LATENCY_MAX_MS: ${MOCK_LATENCY_MAX_MS}
+      MOCK_FAILURE_RATE: ${MOCK_FAILURE_RATE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_API_URL: ${APP_URL}/api
+    container_name: patients-management-web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: ${APP_URL}/api
+    depends_on:
+      - api
+
+volumes:
+  patients_management_pg_data:
+  caddy_data:
+  caddy_config:
