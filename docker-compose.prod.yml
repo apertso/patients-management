@@ -7,7 +7,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ${CADDYFILE_PATH:-./Caddyfile}:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
@@ -25,28 +25,24 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      FRONTEND_URL: ${APP_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
       MOCK_LATENCY_ENABLED: ${MOCK_LATENCY_ENABLED}
       MOCK_LATENCY_MIN_MS: ${MOCK_LATENCY_MIN_MS}
       MOCK_LATENCY_MAX_MS: ${MOCK_LATENCY_MAX_MS}
       MOCK_FAILURE_RATE: ${MOCK_FAILURE_RATE}
-    depends_on:
-      postgres:
-        condition: service_healthy
 
   web:
     build:
       context: ./apps/web
       args:
-        NEXT_PUBLIC_API_URL: ${APP_URL}/api
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: patients-management-web
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: ${APP_URL}/api
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     depends_on:
       - api
 
 volumes:
-  patients_management_pg_data:
   caddy_data:
   caddy_config:

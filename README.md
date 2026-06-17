@@ -63,27 +63,6 @@ patients-management/
 - Docker
 - Docker Compose
 
-## Environment Variables
-
-Backend example:
-
-```env
-PORT=4000
-DATABASE_URL=postgresql://patients:patients@localhost:5432/patients_management
-JWT_SECRET=replace-with-local-development-secret
-JWT_EXPIRES_IN=15m
-FRONTEND_URL=http://localhost:3000
-MOCK_LATENCY_ENABLED=false
-```
-
-Frontend example:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-```
-
-Real `.env` files are intentionally ignored by Git.
-
 ## Local Development
 
 Start PostgreSQL:
@@ -158,6 +137,8 @@ Required production variables:
 - `JWT_EXPIRES_IN`
 - `FRONTEND_URL`
 - `NEXT_PUBLIC_API_URL`
+
+The Caddy config mounted by `docker-compose.prod.yml` can be overridden with `CADDYFILE_PATH`, for example `CADDYFILE_PATH=./Caddyfile.prod`.
 
 For production-like deployments, run migrations and seed data explicitly:
 
@@ -296,14 +277,3 @@ I intentionally kept the following limited:
 - E2E tests with Playwright
 - Production deployment pipeline
 - Rate limiting and structured logging
-
-## Reviewer Checklist
-
-A reviewer can quickly verify the main requirements by checking:
-
-- Login as admin and create/edit/delete a patient
-- Login as user and confirm the workspace is view-only
-- Search, sort, and paginate patient records
-- Open patient details
-- Try duplicate patient email and see a friendly conflict error
-- Enable mock API failures and verify retry/rollback behavior
