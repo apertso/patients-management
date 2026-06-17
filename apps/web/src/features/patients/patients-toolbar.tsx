@@ -2,17 +2,25 @@
 
 import { useEffect, useId, useState } from 'react';
 
+import { SelectDropdown } from '@/components/select-dropdown';
+
 import type { PatientsQuery, PatientSortBy, SortOrder } from './patients.types';
 
-const LIMIT_OPTIONS = [5, 10, 20, 50];
-
-function isPatientSortBy(value: string): value is PatientSortBy {
-  return value === 'lastName' || value === 'dob' || value === 'createdAt';
-}
-
-function isSortOrder(value: string): value is SortOrder {
-  return value === 'asc' || value === 'desc';
-}
+const SORT_BY_OPTIONS: Array<{ label: string; value: PatientSortBy }> = [
+  { label: 'Newest', value: 'createdAt' },
+  { label: 'Last name', value: 'lastName' },
+  { label: 'Date of birth', value: 'dob' },
+];
+const SORT_ORDER_OPTIONS: Array<{ label: string; value: SortOrder }> = [
+  { label: 'Descending', value: 'desc' },
+  { label: 'Ascending', value: 'asc' },
+];
+const LIMIT_OPTIONS = [
+  { label: '5', value: '5' },
+  { label: '10', value: '10' },
+  { label: '20', value: '20' },
+  { label: '50', value: '50' },
+];
 
 type PatientsToolbarProps = {
   query: PatientsQuery;
@@ -71,9 +79,14 @@ export function PatientsToolbar({
             Search
           </label>
           <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg className="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <input
               id={searchId}
-              className="w-full rounded-md border border-border bg-card px-3 py-2 pr-20 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30"
+              className="w-full rounded-md border border-border bg-transparent py-2 pl-9 pr-20 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30"
               type="search"
               placeholder="Search by name, email, or phone"
               value={searchValue}
@@ -95,57 +108,36 @@ export function PatientsToolbar({
           <label className="block text-sm font-medium text-foreground" htmlFor={sortById}>
             Sort by
           </label>
-          <select
+          <SelectDropdown
             id={sortById}
-            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30"
             value={query.sortBy}
-            onChange={(event) => {
-              if (isPatientSortBy(event.target.value)) {
-                onSortChange(event.target.value);
-              }
-            }}
-          >
-            <option value="createdAt">Newest</option>
-            <option value="lastName">Last name</option>
-            <option value="dob">Date of birth</option>
-          </select>
+            options={SORT_BY_OPTIONS}
+            onChange={onSortChange}
+          />
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-foreground" htmlFor={sortOrderId}>
             Sort order
           </label>
-          <select
+          <SelectDropdown
             id={sortOrderId}
-            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30"
             value={query.sortOrder}
-            onChange={(event) => {
-              if (isSortOrder(event.target.value)) {
-                onSortOrderChange(event.target.value);
-              }
-            }}
-          >
-            <option value="desc">Descending</option>
-            <option value="asc">Ascending</option>
-          </select>
+            options={SORT_ORDER_OPTIONS}
+            onChange={onSortOrderChange}
+          />
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-foreground" htmlFor={limitId}>
             Page size
           </label>
-          <select
+          <SelectDropdown
             id={limitId}
-            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30"
-            value={query.limit}
-            onChange={(event) => onLimitChange(Number(event.target.value))}
-          >
-            {LIMIT_OPTIONS.map((limit) => (
-              <option key={limit} value={limit}>
-                {limit}
-              </option>
-            ))}
-          </select>
+            value={String(query.limit)}
+            options={LIMIT_OPTIONS}
+            onChange={(limit) => onLimitChange(Number(limit))}
+          />
         </div>
       </div>
 

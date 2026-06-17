@@ -34,7 +34,7 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
   const queryClient = useQueryClient();
   const titleId = useId();
   const descriptionId = useId();
-  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
   const { showToast } = useToast();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -131,7 +131,7 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
       return;
     }
 
-    window.setTimeout(() => deleteButtonRef.current?.focus(), 0);
+    window.setTimeout(() => dialogRef.current?.focus(), 0);
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -182,8 +182,10 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
       }}
     >
       <section
-        className="max-h-full w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl"
+        ref={dialogRef}
+        className="max-h-full w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl outline-none"
         role="dialog"
+        tabIndex={-1}
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
@@ -219,7 +221,6 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
               Cancel
             </button>
             <button
-              ref={deleteButtonRef}
               className="rounded-md border border-error/30 bg-error/10 px-4 py-2 text-sm font-semibold text-error transition hover:bg-error/15 focus:outline-none focus:ring-2 focus:ring-error/30 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               disabled={deleteMutation.isPending}

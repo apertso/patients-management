@@ -54,7 +54,7 @@ export function PatientDetailsDialog({
   const auth = useAuth();
   const titleId = useId();
   const descriptionId = useId();
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
   const patientQuery = useQuery({
     queryKey: ['patient', patientId],
     queryFn: () => {
@@ -72,7 +72,7 @@ export function PatientDetailsDialog({
       return;
     }
 
-    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+    window.setTimeout(() => dialogRef.current?.focus(), 0);
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -120,8 +120,10 @@ export function PatientDetailsDialog({
       }}
     >
       <section
-        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl"
+        ref={dialogRef}
+        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl outline-none"
         role="dialog"
+        tabIndex={-1}
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
@@ -136,7 +138,6 @@ export function PatientDetailsDialog({
             </p>
           </div>
           <button
-            ref={closeButtonRef}
             className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
             type="button"
             onClick={onClose}

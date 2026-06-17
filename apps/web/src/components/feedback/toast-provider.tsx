@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { cn } from '@/lib/ui';
+
 type ToastVariant = 'success' | 'error' | 'info';
 
 type Toast = {
@@ -30,17 +32,7 @@ function createToastId(): string {
   return `${Date.now()}-${Math.random()}`;
 }
 
-function getToastClassName(variant: ToastVariant): string {
-  if (variant === 'success') {
-    return 'border-success/20 bg-success/10 text-success';
-  }
-
-  if (variant === 'error') {
-    return 'border-error/20 bg-error/10 text-error';
-  }
-
-  return 'border-border bg-card text-card-foreground';
-}
+// Helper function removed in favor of inline logic
 
 export function ToastProvider({ children }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -93,30 +85,49 @@ export function ToastProvider({ children }: ToastProviderProps) {
         aria-live="polite"
         aria-atomic="true"
       >
-        {toasts.map((toast) => (
-          <section
-            key={toast.id}
-            className={`rounded-xl border p-4 shadow-lg ${getToastClassName(toast.variant)}`}
-            role={toast.variant === 'error' ? 'alert' : 'status'}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold">{toast.title}</h2>
-                {toast.description ? (
-                  <p className="mt-1 text-sm leading-5">{toast.description}</p>
-                ) : null}
+        {toasts.map((toast) => {
+          const isSuccess = toast.variant === 'success';
+          const isError = toast.variant === 'error';
+          return (
+            <section
+              key={toast.id}
+              className={cn(
+                "pointer-events-auto relative flex w-full items-start justify-between space-x-4 overflow-hidden rounded-xl border p-4 pr-6 shadow-lg transition-all",
+                isSuccess && "border-success/30 bg-card text-success",
+                isError && "border-error/30 bg-card text-error",
+                !isSuccess && !isError && "border-border bg-card text-foreground"
+              )}
+              role={isError ? 'alert' : 'status'}
+            >
+              <div className="flex items-start gap-3">
+                {isSuccess && (
+                  <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                )}
+                {isError && (
+                  <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-error" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                )}
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-sm font-semibold">{toast.title}</h3>
+                  {toast.description ? (
+                    <p className={cn("text-sm", isSuccess ? "text-success/80" : isError ? "text-error/80" : "text-muted-foreground")}>{toast.description}</p>
+                  ) : null}
+                </div>
               </div>
               <button
-                className="rounded-md border border-current px-2 py-1 text-xs font-medium opacity-80 transition hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
+                className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted focus:outline-none"
                 type="button"
                 aria-label="Dismiss notification"
                 onClick={() => dismissToast(toast.id)}
               >
-                Close
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
-            </div>
-          </section>
-        ))}
+            </section>
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );

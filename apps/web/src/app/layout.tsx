@@ -5,6 +5,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Patients Management System',
   description: 'Full-stack patients management application',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

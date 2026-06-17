@@ -151,28 +151,25 @@ export function PatientsListPage() {
     <section className="space-y-6">
       <header className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold text-foreground">Patients</h1>
-            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Patients</h1>
+            <p className="text-sm text-muted-foreground">
               Search, sort, and manage patient records.
             </p>
           </div>
 
           {canMutatePatients ? (
             <button
-              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background sm:w-auto"
               type="button"
               onClick={() => setIsCreateOpen(true)}
             >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
               Create patient
             </button>
           ) : null}
-        </div>
-
-        <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm leading-6 text-card-foreground shadow-sm">
-          {userRole === 'admin'
-            ? 'Admin access: create, edit, and delete patient records.'
-            : 'View-only access: patient records can be reviewed but not modified.'}
         </div>
       </header>
 
@@ -208,7 +205,7 @@ export function PatientsListPage() {
                       onCreatePatient={() => setIsCreateOpen(true)}
                     />
                   ) : (
-                    <>
+                    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                       <PatientsTable
                         patients={patients}
                         userRole={userRole}
@@ -223,18 +220,17 @@ export function PatientsListPage() {
                         onEditPatient={setEditingPatientId}
                         onDeletePatient={handleDeletePatient}
                       />
-                    </>
+                      <div className="border-t border-border">
+                        <PatientsPagination
+                          page={query.page}
+                          limit={query.limit}
+                          total={patientsQuery.data!.total}
+                          isFetching={patientsQuery.isFetching}
+                          onPageChange={handlePageChange}
+                        />
+                      </div>
+                    </div>
                   )}
-
-                  {patientsQuery.data ? (
-                    <PatientsPagination
-                      page={query.page}
-                      limit={query.limit}
-                      total={patientsQuery.data.total}
-                      isFetching={patientsQuery.isFetching}
-                      onPageChange={handlePageChange}
-                    />
-                  ) : null}
                 </>
               )}
             </>
