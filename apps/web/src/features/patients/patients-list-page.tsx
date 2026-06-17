@@ -8,7 +8,10 @@ import type { UserRole } from '@/features/auth/auth.types';
 import { useAuth } from '@/features/auth/use-auth';
 import { ApiError } from '@/lib/api-client';
 
+import { PatientCreateDialog } from './patient-create-dialog';
+import { PatientDeleteDialog } from './patient-delete-dialog';
 import { PatientDetailsDialog } from './patient-details-dialog';
+import { PatientEditDialog } from './patient-edit-dialog';
 import { getPatients } from './patients.api';
 import { PatientsEmptyState } from './patients-empty-state';
 import { PatientsErrorState } from './patients-error-state';
@@ -21,7 +24,7 @@ import {
 } from './patients-query-state';
 import { PatientsTable } from './patients-table';
 import { PatientsToolbar } from './patients-toolbar';
-import type { PatientsQuery, PatientSortBy, SortOrder } from './patients.types';
+import type { Patient, PatientsQuery, PatientSortBy, SortOrder } from './patients.types';
 
 function getPatientsErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -55,6 +58,9 @@ export function PatientsListPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingPatientId, setEditingPatientId] = useState<string | null>(null);
+  const [deletingPatient, setDeletingPatient] = useState<Patient | null>(null);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
   const query = useMemo(
@@ -110,6 +116,7 @@ export function PatientsListPage() {
   }, [patientsQuery.data, patientsQuery.isFetching, query.limit, query.page, updateQuery]);
 
   const userRole: UserRole = auth.user?.role ?? 'user';
+  const canMutatePatients = userRole === 'admin';
   const patients = patientsQuery.data?.data ?? [];
   const hasSearch = query.search.trim().length > 0;
   const isUnauthorizedError =
@@ -129,20 +136,42 @@ export function PatientsListPage() {
   );
   const handleLimitChange = useCallback((limit: number) => updateQuery({ limit }), [updateQuery]);
   const handlePageChange = useCallback((page: number) => updateQuery({ page }), [updateQuery]);
+  const handleDeletePatient = useCallback(
+    (patient: Patient) => {
+      if (selectedPatientId === patient.id) {
+        setSelectedPatientId(null);
+      }
+
+      setDeletingPatient(patient);
+    },
+    [selectedPatientId],
+  );
 
   return (
     <section className="space-y-6">
       <header className="space-y-3">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-foreground">Patients</h1>
-          <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-            Search, sort, and review patient records.
-          </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold text-foreground">Patients</h1>
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+              Search, sort, and review patient records.
+            </p>
+          </div>
+
+          {canMutatePatients ? (
+            <button
+              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 sm:w-auto"
+              type="button"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              Create patient
+            </button>
+          ) : null}
         </div>
 
         <div className="rounded-lg border border-border bg-muted/60 px-4 py-3 text-sm leading-6 text-foreground">
           {userRole === 'admin'
-            ? 'Signed in as admin. Create, edit, and delete actions will be added in the next stage.'
+            ? 'Signed in as admin. You can create, edit, and delete patient records.'
             : 'Signed in as user. This account has view-only access.'}
         </div>
       </header>
@@ -174,7 +203,9 @@ export function PatientsListPage() {
                   {patients.length === 0 ? (
                     <PatientsEmptyState
                       hasSearch={hasSearch}
+                      canCreate={canMutatePatients}
                       onClearSearch={() => updateQuery({ search: '' })}
+                      onCreatePatient={() => setIsCreateOpen(true)}
                     />
                   ) : (
                     <>
@@ -182,11 +213,15 @@ export function PatientsListPage() {
                         patients={patients}
                         userRole={userRole}
                         onViewPatient={setSelectedPatientId}
+                        onEditPatient={setEditingPatientId}
+                        onDeletePatient={handleDeletePatient}
                       />
                       <PatientsMobileList
                         patients={patients}
                         userRole={userRole}
                         onViewPatient={setSelectedPatientId}
+                        onEditPatient={setEditingPatientId}
+                        onDeletePatient={handleDeletePatient}
                       />
                     </>
                   )}
@@ -212,6 +247,20 @@ export function PatientsListPage() {
         token={auth.token}
         open={selectedPatientId !== null}
         onClose={() => setSelectedPatientId(null)}
+      />
+
+      <PatientCreateDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+
+      <PatientEditDialog
+        patientId={editingPatientId}
+        open={editingPatientId !== null}
+        onClose={() => setEditingPatientId(null)}
+      />
+
+      <PatientDeleteDialog
+        patient={deletingPatient}
+        open={deletingPatient !== null}
+        onClose={() => setDeletingPatient(null)}
       />
     </section>
   );

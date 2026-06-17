@@ -9,6 +9,26 @@ export type Patient = {
   updatedAt: string;
 };
 
+export type PatientFormInput = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  dob: string;
+};
+
+export type PatientMutationInput = Omit<PatientFormInput, 'phoneNumber'> & {
+  phoneNumber?: string;
+};
+
+export type CreatePatientInput = PatientMutationInput;
+
+export type UpdatePatientInput = Partial<PatientMutationInput>;
+
+export type DeletePatientResponse = {
+  ok: true;
+};
+
 export type PatientSortBy = 'lastName' | 'dob' | 'createdAt';
 
 export type SortOrder = 'asc' | 'desc';
