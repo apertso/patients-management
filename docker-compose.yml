@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: patients-management-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: patients
+      POSTGRES_PASSWORD: patients
+      POSTGRES_DB: patients_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - patients_management_pg_data:/var/lib/postgresql/data
+
+volumes:
+  patients_management_pg_data:
