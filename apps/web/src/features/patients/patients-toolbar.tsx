@@ -64,7 +64,7 @@ export function PatientsToolbar({
   }
 
   return (
-    <section className="rounded-lg border border-border bg-background p-4 shadow-sm">
+    <section className="rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_180px_160px_120px] lg:items-end">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-foreground" htmlFor={searchId}>
@@ -73,7 +73,7 @@ export function PatientsToolbar({
           <div className="relative">
             <input
               id={searchId}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 pr-20 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-md border border-border bg-card px-3 py-2 pr-20 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30"
               type="search"
               placeholder="Search by name, email, or phone"
               value={searchValue}
@@ -81,7 +81,7 @@ export function PatientsToolbar({
             />
             {hasSearch ? (
               <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
                 type="button"
                 onClick={clearSearch}
               >
@@ -97,7 +97,7 @@ export function PatientsToolbar({
           </label>
           <select
             id={sortById}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30"
             value={query.sortBy}
             onChange={(event) => {
               if (isPatientSortBy(event.target.value)) {
@@ -117,7 +117,7 @@ export function PatientsToolbar({
           </label>
           <select
             id={sortOrderId}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30"
             value={query.sortOrder}
             onChange={(event) => {
               if (isSortOrder(event.target.value)) {
@@ -136,7 +136,7 @@ export function PatientsToolbar({
           </label>
           <select
             id={limitId}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30"
             value={query.limit}
             onChange={(event) => onLimitChange(Number(event.target.value))}
           >

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
@@ -13,6 +13,7 @@ type PatientFormProps = {
   submitLabel: string;
   isSubmitting: boolean;
   serverError?: string | null;
+  initialFocusRef?: RefObject<HTMLInputElement | null>;
   onSubmit: (values: PatientFormInput) => Promise<void> | void;
   onCancel: () => void;
 };
@@ -29,6 +30,7 @@ export function PatientForm({
   submitLabel,
   isSubmitting,
   serverError,
+  initialFocusRef,
   onSubmit,
   onCancel,
 }: PatientFormProps) {
@@ -42,6 +44,7 @@ export function PatientForm({
     resolver: zodResolver(patientFormSchema),
     defaultValues,
   });
+  const firstNameRegistration = register('firstName');
 
   useEffect(() => {
     if (formIdRef.current !== id) {
@@ -69,17 +72,24 @@ export function PatientForm({
           </label>
           <input
             id={`${id}-firstName`}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
             type="text"
             autoComplete="given-name"
             aria-invalid={errors.firstName ? 'true' : 'false'}
             aria-describedby={errors.firstName ? getFieldErrorId(id, 'firstName') : undefined}
             disabled={isSubmitting}
-            {...register('firstName')}
+            {...firstNameRegistration}
+            ref={(element) => {
+              firstNameRegistration.ref(element);
+
+              if (initialFocusRef) {
+                initialFocusRef.current = element;
+              }
+            }}
           />
           {errors.firstName ? (
             <p
-              className="text-sm leading-5 text-red-700"
+              className="text-sm leading-5 text-error"
               id={getFieldErrorId(id, 'firstName')}
             >
               {errors.firstName.message}
@@ -93,7 +103,7 @@ export function PatientForm({
           </label>
           <input
             id={`${id}-lastName`}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
             type="text"
             autoComplete="family-name"
             aria-invalid={errors.lastName ? 'true' : 'false'}
@@ -102,7 +112,7 @@ export function PatientForm({
             {...register('lastName')}
           />
           {errors.lastName ? (
-            <p className="text-sm leading-5 text-red-700" id={getFieldErrorId(id, 'lastName')}>
+            <p className="text-sm leading-5 text-error" id={getFieldErrorId(id, 'lastName')}>
               {errors.lastName.message}
             </p>
           ) : null}
@@ -114,7 +124,7 @@ export function PatientForm({
           </label>
           <input
             id={`${id}-email`}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
             type="email"
             autoComplete="email"
             aria-invalid={errors.email ? 'true' : 'false'}
@@ -123,7 +133,7 @@ export function PatientForm({
             {...register('email')}
           />
           {errors.email ? (
-            <p className="text-sm leading-5 text-red-700" id={getFieldErrorId(id, 'email')}>
+            <p className="text-sm leading-5 text-error" id={getFieldErrorId(id, 'email')}>
               {errors.email.message}
             </p>
           ) : null}
@@ -138,7 +148,7 @@ export function PatientForm({
           </label>
           <input
             id={`${id}-phoneNumber`}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
             type="tel"
             autoComplete="tel"
             aria-invalid={errors.phoneNumber ? 'true' : 'false'}
@@ -148,7 +158,7 @@ export function PatientForm({
           />
           {errors.phoneNumber ? (
             <p
-              className="text-sm leading-5 text-red-700"
+              className="text-sm leading-5 text-error"
               id={getFieldErrorId(id, 'phoneNumber')}
             >
               {errors.phoneNumber.message}
@@ -162,7 +172,7 @@ export function PatientForm({
           </label>
           <input
             id={`${id}-dob`}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+            className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
             type="date"
             max={todayInputValue}
             aria-invalid={errors.dob ? 'true' : 'false'}
@@ -171,7 +181,7 @@ export function PatientForm({
             {...register('dob')}
           />
           {errors.dob ? (
-            <p className="text-sm leading-5 text-red-700" id={getFieldErrorId(id, 'dob')}>
+            <p className="text-sm leading-5 text-error" id={getFieldErrorId(id, 'dob')}>
               {errors.dob.message}
             </p>
           ) : null}
@@ -180,7 +190,7 @@ export function PatientForm({
 
       {serverError ? (
         <div
-          className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-900"
+          className="rounded-md border border-error/20 bg-error/10 p-3 text-sm text-error"
           id={`${id}-server-error`}
           role="alert"
         >
@@ -190,7 +200,7 @@ export function PatientForm({
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <button
-          className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           disabled={isSubmitting}
           onClick={onCancel}
@@ -198,7 +208,7 @@ export function PatientForm({
           Cancel
         </button>
         <button
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           disabled={isSubmitting}
         >

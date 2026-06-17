@@ -32,14 +32,14 @@ function createToastId(): string {
 
 function getToastClassName(variant: ToastVariant): string {
   if (variant === 'success') {
-    return 'border-green-200 bg-green-50 text-green-900';
+    return 'border-success/20 bg-success/10 text-success';
   }
 
   if (variant === 'error') {
-    return 'border-red-200 bg-red-50 text-red-900';
+    return 'border-error/20 bg-error/10 text-error';
   }
 
-  return 'border-border bg-background text-foreground';
+  return 'border-border bg-card text-card-foreground';
 }
 
 export function ToastProvider({ children }: ToastProviderProps) {
@@ -96,7 +96,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
         {toasts.map((toast) => (
           <section
             key={toast.id}
-            className={`rounded-lg border p-4 shadow-lg ${getToastClassName(toast.variant)}`}
+            className={`rounded-xl border p-4 shadow-lg ${getToastClassName(toast.variant)}`}
             role={toast.variant === 'error' ? 'alert' : 'status'}
           >
             <div className="flex items-start justify-between gap-3">
@@ -107,8 +107,9 @@ export function ToastProvider({ children }: ToastProviderProps) {
                 ) : null}
               </div>
               <button
-                className="rounded-md border border-current px-2 py-1 text-xs font-medium opacity-80 transition hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                className="rounded-md border border-current px-2 py-1 text-xs font-medium opacity-80 transition hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
                 type="button"
+                aria-label="Dismiss notification"
                 onClick={() => dismissToast(toast.id)}
               >
                 Close

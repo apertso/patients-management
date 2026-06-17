@@ -154,13 +154,13 @@ export function PatientsListPage() {
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold text-foreground">Patients</h1>
             <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-              Search, sort, and review patient records.
+              Search, sort, and manage patient records.
             </p>
           </div>
 
           {canMutatePatients ? (
             <button
-              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 sm:w-auto"
+              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background sm:w-auto"
               type="button"
               onClick={() => setIsCreateOpen(true)}
             >
@@ -169,10 +169,10 @@ export function PatientsListPage() {
           ) : null}
         </div>
 
-        <div className="rounded-lg border border-border bg-muted/60 px-4 py-3 text-sm leading-6 text-foreground">
+        <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm leading-6 text-card-foreground shadow-sm">
           {userRole === 'admin'
-            ? 'Signed in as admin. You can create, edit, and delete patient records.'
-            : 'Signed in as user. This account has view-only access.'}
+            ? 'Admin access: create, edit, and delete patient records.'
+            : 'View-only access: patient records can be reviewed but not modified.'}
         </div>
       </header>
 

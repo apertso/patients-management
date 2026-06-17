@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query';
 
 import { useToast } from '@/components/feedback/use-toast';
@@ -34,6 +34,7 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
   const queryClient = useQueryClient();
   const titleId = useId();
   const descriptionId = useId();
+  const deleteButtonRef = useRef<HTMLButtonElement | null>(null);
   const { showToast } = useToast();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -130,6 +131,8 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
       return;
     }
 
+    window.setTimeout(() => deleteButtonRef.current?.focus(), 0);
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         handleClose();
@@ -140,6 +143,19 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleClose, open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   if (!open || !patient) {
     return null;
@@ -166,7 +182,7 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
       }}
     >
       <section
-        className="max-h-full w-full max-w-lg overflow-y-auto rounded-lg border border-border bg-background shadow-xl"
+        className="max-h-full w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -185,7 +201,7 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
 
           {serverError ? (
             <div
-              className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-900"
+              className="rounded-md border border-error/20 bg-error/10 p-3 text-sm text-error"
               id={`${patient.id}-delete-error`}
               role="alert"
             >
@@ -195,7 +211,7 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
-              className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               disabled={deleteMutation.isPending}
               onClick={handleClose}
@@ -203,7 +219,8 @@ export function PatientDeleteDialog({ patient, open, onClose }: PatientDeleteDia
               Cancel
             </button>
             <button
-              className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              ref={deleteButtonRef}
+              className="rounded-md border border-error/30 bg-error/10 px-4 py-2 text-sm font-semibold text-error transition hover:bg-error/15 focus:outline-none focus:ring-2 focus:ring-error/30 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               disabled={deleteMutation.isPending}
               onClick={handleDelete}

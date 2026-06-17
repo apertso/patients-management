@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -26,5 +26,7 @@ async function bootstrap() {
   const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 
   await app.listen(port);
+  const url = await app.getUrl();
+  Logger.log(`API is running on ${url}/api`, 'Bootstrap');
 }
 void bootstrap();

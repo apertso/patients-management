@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 
 import { ToastProvider } from '@/components/feedback/toast-provider';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import { AuthProvider } from '@/features/auth/auth-provider';
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -23,9 +24,11 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

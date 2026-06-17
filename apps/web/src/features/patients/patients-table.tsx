@@ -21,7 +21,7 @@ export function PatientsTable({
   const canMutatePatients = userRole === 'admin';
 
   return (
-    <div className="hidden overflow-hidden rounded-lg border border-border bg-background shadow-sm md:block">
+    <div className="hidden overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm md:block">
       <table className="w-full border-collapse text-left text-sm">
         <thead className="bg-muted/70 text-xs uppercase tracking-normal text-muted-foreground">
           <tr>
@@ -47,7 +47,7 @@ export function PatientsTable({
         </thead>
         <tbody className="divide-y divide-border">
           {patients.map((patient) => (
-            <tr key={patient.id} className="transition hover:bg-muted/40">
+            <tr key={patient.id} className="transition hover:bg-muted/50">
               <td className="px-4 py-4 align-top">
                 <p className="font-medium text-foreground">
                   {patient.firstName} {patient.lastName}
@@ -67,7 +67,7 @@ export function PatientsTable({
               <td className="px-4 py-4 align-top">
                 <div className="flex flex-wrap gap-2">
                   <button
-                    className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                    className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
                     type="button"
                     onClick={() => onViewPatient(patient.id)}
                   >
@@ -77,14 +77,14 @@ export function PatientsTable({
                   {canMutatePatients ? (
                     <>
                       <button
-                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                        className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
                         type="button"
                         onClick={() => onEditPatient(patient.id)}
                       >
                         Edit
                       </button>
                       <button
-                        className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2"
+                        className="rounded-md border border-error/30 px-3 py-1.5 text-sm font-medium text-error transition hover:bg-error/10 focus:outline-none focus:ring-2 focus:ring-error/30 focus:ring-offset-2 focus:ring-offset-background"
                         type="button"
                         onClick={() => onDeletePatient(patient)}
                       >

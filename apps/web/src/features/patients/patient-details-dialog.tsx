@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/use-auth';
@@ -53,6 +53,8 @@ export function PatientDetailsDialog({
 }: PatientDetailsDialogProps) {
   const auth = useAuth();
   const titleId = useId();
+  const descriptionId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const patientQuery = useQuery({
     queryKey: ['patient', patientId],
     queryFn: () => {
@@ -70,6 +72,8 @@ export function PatientDetailsDialog({
       return;
     }
 
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         onClose();
@@ -80,6 +84,19 @@ export function PatientDetailsDialog({
 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (patientQuery.error instanceof ApiError && patientQuery.error.statusCode === 401) {
@@ -103,22 +120,24 @@ export function PatientDetailsDialog({
       }}
     >
       <section
-        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-background shadow-xl"
+        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-describedby={descriptionId}
       >
         <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
           <div>
             <h2 className="text-xl font-semibold text-foreground" id={titleId}>
               Patient details
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground" id={descriptionId}>
               View the latest read-only patient record.
             </p>
           </div>
           <button
-            className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+            ref={closeButtonRef}
+            className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
             type="button"
             onClick={onClose}
             aria-label="Close patient details"
@@ -142,13 +161,13 @@ export function PatientDetailsDialog({
 
           {patientQuery.isError &&
           !(patientQuery.error instanceof ApiError && patientQuery.error.statusCode === 401) ? (
-            <section className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h3 className="font-semibold text-red-900">Unable to load patient details</h3>
-              <p className="mt-2 text-sm leading-6 text-red-800">
+            <section className="rounded-lg border border-error/20 bg-error/10 p-4">
+              <h3 className="font-semibold text-error">Unable to load patient details</h3>
+              <p className="mt-2 text-sm leading-6 text-error">
                 {getDialogErrorMessage(patientQuery.error)}
               </p>
               <button
-                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
                 type="button"
                 onClick={() => {
                   void patientQuery.refetch();

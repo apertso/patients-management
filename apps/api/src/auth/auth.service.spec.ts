@@ -72,7 +72,20 @@ describe('AuthService', () => {
     });
   });
 
-  it('throws UnauthorizedException for invalid credentials', async () => {
+  it('does not include passwordHash in the login response', async () => {
+    const passwordHash = await bcrypt.hash('password123', 4);
+    usersService.findByEmail.mockResolvedValue(createUser(passwordHash));
+    jwtService.signAsync.mockResolvedValue('jwt-token');
+
+    const response = await service.login({
+      email: 'admin@example.com',
+      password: 'password123',
+    });
+
+    expect(response.user).not.toHaveProperty('passwordHash');
+  });
+
+  it('throws UnauthorizedException when the user is missing', async () => {
     usersService.findByEmail.mockResolvedValue(null);
 
     await expect(
@@ -81,5 +94,18 @@ describe('AuthService', () => {
         password: 'wrong-password',
       }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('throws UnauthorizedException for an invalid password', async () => {
+    const passwordHash = await bcrypt.hash('password123', 4);
+    usersService.findByEmail.mockResolvedValue(createUser(passwordHash));
+
+    await expect(
+      service.login({
+        email: 'admin@example.com',
+        password: 'wrong-password',
+      }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(jwtService.signAsync).not.toHaveBeenCalled();
   });
 });

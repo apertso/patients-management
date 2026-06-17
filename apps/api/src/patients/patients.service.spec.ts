@@ -91,6 +91,34 @@ describe('PatientsService', () => {
     );
   });
 
+  it('applies search across patient fields', async () => {
+    prisma.patient.findMany.mockResolvedValue([patient]);
+    prisma.patient.count.mockResolvedValue(1);
+    prisma.$transaction.mockResolvedValue([[patient], 1]);
+
+    await service.findAll({
+      page: 1,
+      limit: 10,
+      search: 'emma',
+      sortBy: PatientSortBy.lastName,
+      sortOrder: SortOrder.asc,
+    });
+
+    expect(prisma.patient.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          OR: [
+            { firstName: { contains: 'emma', mode: 'insensitive' } },
+            { lastName: { contains: 'emma', mode: 'insensitive' } },
+            { email: { contains: 'emma', mode: 'insensitive' } },
+            { phoneNumber: { contains: 'emma', mode: 'insensitive' } },
+          ],
+        },
+        orderBy: { lastName: 'asc' },
+      }),
+    );
+  });
+
   it('throws NotFoundException when a patient is missing', async () => {
     prisma.patient.findUnique.mockResolvedValue(null);
 
@@ -115,5 +143,36 @@ describe('PatientsService', () => {
         dob: '1988-04-12',
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('maps unique email violations to ConflictException on update', async () => {
+    prisma.patient.findUnique.mockResolvedValue(patient);
+    prisma.patient.update.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: 'test',
+        meta: { target: ['email'] },
+      }),
+    );
+
+    await expect(
+      service.update('patient-id', {
+        firstName: 'Emma',
+        lastName: 'Johnson',
+        email: 'duplicate@example.com',
+        phoneNumber: '+1 555 0101',
+        dob: '1988-04-12',
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('removes a patient and returns ok', async () => {
+    prisma.patient.findUnique.mockResolvedValue(patient);
+    prisma.patient.delete.mockResolvedValue(patient);
+
+    await expect(service.remove('patient-id')).resolves.toEqual({ ok: true });
+    expect(prisma.patient.delete).toHaveBeenCalledWith({
+      where: { id: 'patient-id' },
+    });
   });
 });

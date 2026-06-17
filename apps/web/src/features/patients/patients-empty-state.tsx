@@ -12,7 +12,7 @@ export function PatientsEmptyState({
   onCreatePatient,
 }: PatientsEmptyStateProps) {
   return (
-    <section className="rounded-lg border border-border bg-background px-6 py-12 text-center shadow-sm">
+    <section className="rounded-xl border border-border bg-card px-6 py-12 text-center text-card-foreground shadow-sm">
       <h2 className="text-lg font-semibold text-foreground">
         {hasSearch ? 'No patients found' : 'No patients yet'}
       </h2>
@@ -24,7 +24,7 @@ export function PatientsEmptyState({
 
       {hasSearch ? (
         <button
-          className="mt-5 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+          className="mt-5 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
           type="button"
           onClick={onClearSearch}
         >
@@ -32,7 +32,7 @@ export function PatientsEmptyState({
         </button>
       ) : canCreate ? (
         <button
-          className="mt-5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+          className="mt-5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
           type="button"
           onClick={onCreatePatient}
         >

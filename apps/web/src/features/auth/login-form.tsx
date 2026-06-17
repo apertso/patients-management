@@ -64,11 +64,11 @@ export function LoginForm() {
           disabled={isSubmitting}
           aria-invalid={errors.email ? 'true' : 'false'}
           aria-describedby={errors.email ? 'email-error' : undefined}
-          className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+          className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
           {...register('email')}
         />
         {errors.email?.message ? (
-          <p className="text-sm text-red-700" id="email-error">
+          <p className="text-sm text-error" id="email-error">
             {errors.email.message}
           </p>
         ) : null}
@@ -85,24 +85,24 @@ export function LoginForm() {
           disabled={isSubmitting}
           aria-invalid={errors.password ? 'true' : 'false'}
           aria-describedby={errors.password ? 'password-error' : undefined}
-          className="w-full rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-muted"
+          className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring/30 disabled:cursor-not-allowed disabled:bg-muted"
           {...register('password')}
         />
         {errors.password?.message ? (
-          <p className="text-sm text-red-700" id="password-error">
+          <p className="text-sm text-error" id="password-error">
             {errors.password.message}
           </p>
         ) : null}
       </div>
 
       {errors.root?.message ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p className="rounded-md border border-error/20 bg-error/10 px-3 py-2 text-sm text-error">
           {errors.root.message}
         </p>
       ) : null}
 
       <button
-        className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+        className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-70"
         type="submit"
         disabled={isSubmitting}
       >

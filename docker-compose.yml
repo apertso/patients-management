@@ -11,6 +11,47 @@ services:
       - "5432:5432"
     volumes:
       - patients_management_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patients -d patients_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+    container_name: patients-management-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://patients:patients@postgres:5432/patients_management
+      JWT_SECRET: local-docker-development-secret
+      JWT_EXPIRES_IN: 15m
+      FRONTEND_URL: http://localhost:3000
+      MOCK_LATENCY_ENABLED: "false"
+      MOCK_LATENCY_MIN_MS: 200
+      MOCK_LATENCY_MAX_MS: 900
+      MOCK_FAILURE_RATE: 0.05
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:4000/api
+    container_name: patients-management-web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
 
 volumes:
   patients_management_pg_data:

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   useMutation,
   useQuery,
@@ -65,6 +65,7 @@ export function PatientEditDialog({ patientId, open, onClose }: PatientEditDialo
   const queryClient = useQueryClient();
   const titleId = useId();
   const descriptionId = useId();
+  const initialFocusRef = useRef<HTMLInputElement | null>(null);
   const { showToast } = useToast();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -228,6 +229,27 @@ export function PatientEditDialog({ patientId, open, onClose }: PatientEditDialo
   }, [handleClose, open]);
 
   useEffect(() => {
+    if (!open || !patient) {
+      return;
+    }
+
+    window.setTimeout(() => initialFocusRef.current?.focus(), 0);
+  }, [open, patient]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
     if (patientQuery.error instanceof ApiError && patientQuery.error.statusCode === 401) {
       auth.logout();
     }
@@ -264,7 +286,7 @@ export function PatientEditDialog({ patientId, open, onClose }: PatientEditDialo
       }}
     >
       <section
-        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-background shadow-xl"
+        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card text-card-foreground shadow-xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -293,21 +315,21 @@ export function PatientEditDialog({ patientId, open, onClose }: PatientEditDialo
           ) : null}
 
           {patientQuery.isError && !isUnauthorizedLoadError ? (
-            <section className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h3 className="font-semibold text-red-900">Unable to load patient</h3>
-              <p className="mt-2 text-sm leading-6 text-red-800">
+            <section className="rounded-lg border border-error/20 bg-error/10 p-4">
+              <h3 className="font-semibold text-error">Unable to load patient</h3>
+              <p className="mt-2 text-sm leading-6 text-error">
                 {getPatientLoadErrorMessage(patientQuery.error)}
               </p>
               <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <button
-                  className="rounded-md border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                  className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
                   type="button"
                   onClick={handleClose}
                 >
                   Cancel
                 </button>
                 <button
-                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
                   type="button"
                   onClick={() => {
                     void patientQuery.refetch();
@@ -326,6 +348,7 @@ export function PatientEditDialog({ patientId, open, onClose }: PatientEditDialo
               submitLabel={updateMutation.isPending ? 'Saving...' : 'Save changes'}
               isSubmitting={updateMutation.isPending}
               serverError={serverError}
+              initialFocusRef={initialFocusRef}
               onSubmit={handleSubmit}
               onCancel={handleClose}
             />
