@@ -1,12 +1,25 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { useAuth } from '@/features/auth/use-auth';
+
 export default function Home() {
+  const auth = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (auth.isLoading) {
+      return;
+    }
+
+    router.push(auth.isAuthenticated ? '/patients' : '/login');
+  }, [auth.isAuthenticated, auth.isLoading, router]);
+
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <section className="text-center">
-        <h1 className="text-3xl font-semibold text-[hsl(var(--foreground))]">
-          Patients Management System
-        </h1>
-        <p className="mt-3 text-base text-[hsl(var(--muted-foreground))]">Frontend is running.</p>
-      </section>
+    <main className="flex min-h-screen items-center justify-center px-6 text-sm text-muted-foreground">
+      Loading...
     </main>
   );
 }
