@@ -108,5 +108,19 @@ summary,
 }
 
 button:disabled[class] {
+  cursor: not-allowed;
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
   cursor: pointer;
+  opacity: 0.7;
+}
+
+.dark input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.9;
 }

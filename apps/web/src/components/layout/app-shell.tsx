@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, type ReactNode } from 'react';
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { ThemeContext } from '@/components/theme/theme-provider';
 import { useAuth } from '@/features/auth/use-auth';
@@ -12,8 +12,36 @@ type AppShellProps = {
 export function AppShell({ children }: AppShellProps) {
   const auth = useAuth();
   const themeContext = useContext(ThemeContext);
+  const accountMenuRef = useRef<HTMLDetailsElement | null>(null);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const roleLabel = auth.user?.role ? auth.user.role.charAt(0).toUpperCase() + auth.user.role.slice(1) : 'Account';
   const isDarkTheme = themeContext?.theme === 'dark';
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsAccountMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAccountMenuOpen]);
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -33,8 +61,14 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm sm:justify-end">
-            <details className="group relative">
-              <summary className="flex cursor-pointer list-none items-center gap-2 text-foreground outline-none transition hover:text-primary focus-visible:ring-2 focus-visible:ring-ring/40 [&::-webkit-details-marker]:hidden">
+            <details className="group relative" open={isAccountMenuOpen} ref={accountMenuRef}>
+              <summary
+                className="flex cursor-pointer list-none items-center gap-2 text-foreground outline-none transition hover:text-primary focus-visible:ring-2 focus-visible:ring-ring/40 [&::-webkit-details-marker]:hidden"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setIsAccountMenuOpen((current) => !current);
+                }}
+              >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-muted/60 text-muted-foreground">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -54,7 +88,10 @@ export function AppShell({ children }: AppShellProps) {
                   <button
                     className="flex w-full items-center gap-2 px-3 py-2 text-left text-muted-foreground transition hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none"
                     type="button"
-                    onClick={themeContext.toggleTheme}
+                    onClick={() => {
+                      themeContext.toggleTheme();
+                      setIsAccountMenuOpen(false);
+                    }}
                   >
                     {isDarkTheme ? (
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -71,7 +108,10 @@ export function AppShell({ children }: AppShellProps) {
                 <button
                   className="flex w-full items-center gap-2 px-3 py-2 text-left text-muted-foreground transition hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none"
                   type="button"
-                  onClick={auth.logout}
+                  onClick={() => {
+                    setIsAccountMenuOpen(false);
+                    auth.logout();
+                  }}
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

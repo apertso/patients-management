@@ -86,7 +86,7 @@ export function PatientsToolbar({
             </div>
             <input
               id={searchId}
-              className="w-full rounded-md border border-border bg-transparent py-2 pl-9 pr-20 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30"
+              className="w-full rounded-md border border-border bg-transparent py-2 pl-9 pr-10 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30"
               type="search"
               placeholder="Search by name, email, or phone"
               value={searchValue}
@@ -94,11 +94,12 @@ export function PatientsToolbar({
             />
             {hasSearch ? (
               <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none"
                 type="button"
                 onClick={clearSearch}
+                aria-label="Clear search"
               >
-                Clear
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             ) : null}
           </div>

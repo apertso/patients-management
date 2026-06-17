@@ -1,29 +1,35 @@
 const DESKTOP_ROWS = ['row-1', 'row-2', 'row-3', 'row-4', 'row-5'];
 const MOBILE_CARDS = ['card-1', 'card-2', 'card-3'];
 
-export function PatientsListSkeleton() {
+type PatientsListSkeletonProps = {
+  includeToolbar?: boolean;
+};
+
+export function PatientsListSkeleton({ includeToolbar = true }: PatientsListSkeletonProps) {
   return (
     <div className="space-y-4" aria-label="Loading patients" aria-live="polite">
-      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_180px_160px_120px]">
-          <div className="space-y-2">
-            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-            <div className="h-10 animate-pulse rounded-md bg-muted" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 w-16 animate-pulse rounded bg-muted" />
-            <div className="h-10 animate-pulse rounded-md bg-muted" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-            <div className="h-10 animate-pulse rounded-md bg-muted" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-            <div className="h-10 animate-pulse rounded-md bg-muted" />
+      {includeToolbar ? (
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_180px_160px_120px]">
+            <div className="space-y-2">
+              <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+              <div className="h-10 animate-pulse rounded-md bg-muted" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-16 animate-pulse rounded bg-muted" />
+              <div className="h-10 animate-pulse rounded-md bg-muted" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+              <div className="h-10 animate-pulse rounded-md bg-muted" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+              <div className="h-10 animate-pulse rounded-md bg-muted" />
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
 
       <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-sm md:block">
         <div className="grid grid-cols-6 gap-4 border-b border-border bg-muted/70 px-4 py-3">

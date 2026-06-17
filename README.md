@@ -2,7 +2,7 @@
 
 ## Overview
 
-A full-stack Patients Management System built for a technical interview take-home assignment. The app demonstrates role-aware authentication, RBAC, a protected patients workspace, CRUD operations, optimistic updates, responsive UI states, and a clean NestJS backend with PostgreSQL.
+A full-stack Patients Management System demonstrating role-aware authentication, RBAC, a protected patients workspace, CRUD operations, optimistic updates, responsive UI states, and a clean NestJS backend with PostgreSQL.
 
 ## Tech Stack
 
@@ -62,6 +62,27 @@ patients-management/
 - npm
 - Docker
 - Docker Compose
+
+## Environment Variables
+
+Backend example:
+
+```env
+PORT=4000
+DATABASE_URL=postgresql://patients:patients@localhost:5432/patients_management
+JWT_SECRET=replace-with-local-development-secret
+JWT_EXPIRES_IN=15m
+FRONTEND_URL=http://localhost:3000
+MOCK_LATENCY_ENABLED=false
+```
+
+Frontend example:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+```
+
+Real `.env` files are intentionally ignored by Git.
 
 ## Local Development
 
@@ -124,7 +145,31 @@ Then open:
 http://localhost:3000
 ```
 
-Production deployments must replace `JWT_SECRET`, `DATABASE_URL`, `NEXT_PUBLIC_API_URL`, and `FRONTEND_URL`. Do not commit real secrets.
+### Production Docker Notes
+
+`docker-compose.prod.yml` is intended for deployment with an external PostgreSQL database, for example Supabase.
+
+Because of that, the production compose file does not include a local `postgres` service. The API expects `DATABASE_URL` to point to the external database.
+
+Required production variables:
+
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `FRONTEND_URL`
+- `NEXT_PUBLIC_API_URL`
+
+For production-like deployments, run migrations and seed data explicitly:
+
+```bash
+cd apps/api
+DATABASE_URL="your-production-database-url" npm run db:migrate
+DATABASE_URL="your-production-database-url" npm run db:seed
+```
+
+In a real production system, demo seed users would be replaced with a proper user provisioning flow.
+
+Do not commit real secrets.
 
 ## API Contract
 
@@ -203,6 +248,7 @@ npm run test
 - Admin-only mutations are guarded server-side.
 - Helmet and CORS are configured in the NestJS bootstrap.
 - Local `.env.example` files contain placeholders only.
+- For this take-home assignment, JWT is stored in `localStorage` to keep the frontend implementation simple and easy to review. In a production system, I would consider an httpOnly cookie-based session or a refresh-token flow depending on security requirements.
 
 ## Performance And Reliability Notes
 
@@ -230,6 +276,8 @@ Given the 3-4 hour timebox, I prioritized:
 - Optimistic mutation UX
 - Clear local setup and verification commands
 
+This project was built as a take-home style exercise, so the implementation favors clarity, reviewability, and explicit trade-offs over production infrastructure complexity.
+
 I intentionally kept the following limited:
 
 - No refresh-token flow
@@ -248,3 +296,14 @@ I intentionally kept the following limited:
 - E2E tests with Playwright
 - Production deployment pipeline
 - Rate limiting and structured logging
+
+## Reviewer Checklist
+
+A reviewer can quickly verify the main requirements by checking:
+
+- Login as admin and create/edit/delete a patient
+- Login as user and confirm the workspace is view-only
+- Search, sort, and paginate patient records
+- Open patient details
+- Try duplicate patient email and see a friendly conflict error
+- Enable mock API failures and verify retry/rollback behavior

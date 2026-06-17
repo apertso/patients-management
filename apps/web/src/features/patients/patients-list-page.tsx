@@ -119,6 +119,7 @@ export function PatientsListPage() {
   const canMutatePatients = userRole === 'admin';
   const patients = patientsQuery.data?.data ?? [];
   const hasSearch = query.search.trim().length > 0;
+  const isUpdatingPatients = patientsQuery.isFetching && !patientsQuery.isPending;
   const isUnauthorizedError =
     patientsQuery.error instanceof ApiError && patientsQuery.error.statusCode === 401;
 
@@ -188,7 +189,9 @@ export function PatientsListPage() {
                 onLimitChange={handleLimitChange}
               />
 
-              {patientsQuery.isError ? (
+              {isUpdatingPatients ? (
+                <PatientsListSkeleton includeToolbar={false} />
+              ) : patientsQuery.isError ? (
                 <PatientsErrorState
                   message={getPatientsErrorMessage(patientsQuery.error)}
                   onRetry={() => {

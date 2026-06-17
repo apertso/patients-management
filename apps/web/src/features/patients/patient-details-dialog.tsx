@@ -138,12 +138,12 @@ export function PatientDetailsDialog({
             </p>
           </div>
           <button
-            className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 focus:ring-offset-background"
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted focus:outline-none"
             type="button"
             onClick={onClose}
             aria-label="Close patient details"
           >
-            Close
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </header>
 
