@@ -1,0 +1,179 @@
+'use client';
+
+import { useEffect, useId } from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+import { useAuth } from '@/features/auth/use-auth';
+import { ApiError } from '@/lib/api-client';
+import { formatDate, formatDateTime } from '@/lib/date-format';
+
+import { getPatient } from './patients.api';
+
+type PatientDetailsDialogProps = {
+  patientId: string | null;
+  token: string | null;
+  open: boolean;
+  onClose: () => void;
+};
+
+function getDialogErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.statusCode === 403) {
+      return 'You do not have permission to view this patient record.';
+    }
+
+    if (error.statusCode === 404) {
+      return 'This patient record could not be found.';
+    }
+
+    if (error.statusCode === 503) {
+      return 'The API is temporarily unavailable. Please retry.';
+    }
+  }
+
+  return 'Something went wrong while loading patient details.';
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-border bg-muted/50 p-3">
+      <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 break-words text-sm text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+export function PatientDetailsDialog({
+  patientId,
+  token,
+  open,
+  onClose,
+}: PatientDetailsDialogProps) {
+  const auth = useAuth();
+  const titleId = useId();
+  const patientQuery = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: () => {
+      if (!patientId || !token) {
+        throw new Error('Missing patient details parameters.');
+      }
+
+      return getPatient(patientId, token);
+    },
+    enabled: open && Boolean(patientId) && Boolean(token),
+  });
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, open]);
+
+  useEffect(() => {
+    if (patientQuery.error instanceof ApiError && patientQuery.error.statusCode === 401) {
+      auth.logout();
+    }
+  }, [auth, patientQuery.error]);
+
+  if (!open) {
+    return null;
+  }
+
+  const patient = patientQuery.data;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <section
+        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-background shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
+        <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground" id={titleId}>
+              Patient details
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              View the latest read-only patient record.
+            </p>
+          </div>
+          <button
+            className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+            type="button"
+            onClick={onClose}
+            aria-label="Close patient details"
+          >
+            Close
+          </button>
+        </header>
+
+        <div className="px-5 py-5">
+          {patientQuery.isPending ? (
+            <div className="space-y-3" aria-label="Loading patient details">
+              <div className="h-5 w-48 animate-pulse rounded bg-muted" />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="h-16 animate-pulse rounded-md bg-muted" />
+                <div className="h-16 animate-pulse rounded-md bg-muted" />
+                <div className="h-16 animate-pulse rounded-md bg-muted" />
+                <div className="h-16 animate-pulse rounded-md bg-muted" />
+              </div>
+            </div>
+          ) : null}
+
+          {patientQuery.isError &&
+          !(patientQuery.error instanceof ApiError && patientQuery.error.statusCode === 401) ? (
+            <section className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <h3 className="font-semibold text-red-900">Unable to load patient details</h3>
+              <p className="mt-2 text-sm leading-6 text-red-800">
+                {getDialogErrorMessage(patientQuery.error)}
+              </p>
+              <button
+                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2"
+                type="button"
+                onClick={() => {
+                  void patientQuery.refetch();
+                }}
+              >
+                Try again
+              </button>
+            </section>
+          ) : null}
+
+          {patient ? (
+            <dl className="grid gap-3 sm:grid-cols-2">
+              <DetailItem label="Full name" value={`${patient.firstName} ${patient.lastName}`} />
+              <DetailItem label="Email" value={patient.email} />
+              <DetailItem label="Phone number" value={patient.phoneNumber ?? '—'} />
+              <DetailItem label="Date of birth" value={formatDate(patient.dob)} />
+              <DetailItem label="Created at" value={formatDateTime(patient.createdAt)} />
+              <DetailItem label="Updated at" value={formatDateTime(patient.updatedAt)} />
+              <div className="sm:col-span-2">
+                <DetailItem label="ID" value={patient.id} />
+              </div>
+            </dl>
+          ) : null}
+        </div>
+      </section>
+    </div>
+  );
+}
